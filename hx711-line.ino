@@ -3,21 +3,35 @@ void Line_Notify1(String message1) ;
 #include <WiFiClientSecure.h>
 #include <ESP8266WiFi.h>
 #include <TridentTD_LineNotify.h>
+#include <BlynkSimpleEsp8266.h>
 
+#define BLYNK_PRINT Serial
 #define WIFI_SSID ""        // ใส่ชื่อ Wifi
 #define WIFI_PASSWORD ""     // ใส่รหัส Wifi
 #define LINE_TOKEN_PIR ""
 #define calibration_factor 4390.0 //This value is obtained using the SparkFun_HX711_Calibration sketch
 #define zero_factor 18230 //This large value is obtained using the SparkFun_HX711_Calibration sketch
 #define LED 17
+#define relay4 D8
 
-#define DOUT  D5
+#define DOUT D5
 #define CLK  D6
 
 HX711 scale;
+BlynkTimer timer;
 String message1 = "";//พี่ใส่ข้อความที่จะให้เเจ้งเตือนในไลน์ตรงนี้้้้้นะ
-
+#define auth "" //ใส่โทเคนที่ได้จากแอพ Blynk
+BLYNK_WRITE(V0){
+  if (param.asInt() == 1){
+    digitalWrite(relay4, !digitalRead(relay4)); 
+    if (digitalRead(relay4) == LOW){
+    }
+    else{
+    }
+  }
+}
 void setup() {
+  
   Serial.begin(9600);
   Serial.println("Demo of zeroing out a scale from a known value");
   scale.set_scale(calibration_factor); //This value is obtained by using the SparkFun_HX711_Calibration sketch
@@ -32,8 +46,13 @@ void setup() {
     delay(500);
     pinMode(LED, OUTPUT);
   }
+  Blynk.begin(auth, WIFI_SSID, WIFI_PASSWORD);
+  pinMode(relay4, OUTPUT);
+  digitalWrite(relay4, HIGH);
 }
 void loop(){
+  Blynk.run();
+  timer.run();
   Serial.print("Reading: ");
   Serial.print(scale.get_units(), 1); //scale.get_units() returns a float
   Serial.print(" kg"); //You can change to kg but you'll need to change the calibration_factor
